@@ -1,7 +1,7 @@
 public abstract class Goal
 {
-    private string _name;
-    private int _points;
+    protected string _name;
+    protected int _points;
 
     public string Name { get { return _name; } }
     public int Points { get { return _points; } }

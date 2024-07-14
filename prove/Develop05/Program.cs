@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 class Program
 {
@@ -26,6 +27,12 @@ class Program
         manager.Load("goals.txt");
 
         // Display updated goals
+        manager.DisplayGoals();
+        Console.WriteLine($"Total Score: {manager.Score}");
+
+        // Exceeding requirements: Additional feature - levels
+        manager.AddGoal(new LevelGoal("Complete C# course", 200, 5));
+        manager.RecordEvent(3); // Progress in C# course
         manager.DisplayGoals();
         Console.WriteLine($"Total Score: {manager.Score}");
     }

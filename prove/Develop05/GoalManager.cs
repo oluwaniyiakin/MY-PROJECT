@@ -67,6 +67,8 @@ public class GoalManager
         string[] lines = File.ReadAllLines(filename);
         _score = int.Parse(lines[0]);
 
+        _goals.Clear();
+
         for (int i = 1; i < lines.Length; i++)
         {
             string[] parts = lines[i].Split(':');
@@ -84,6 +86,10 @@ public class GoalManager
             else if (type == "ChecklistGoal")
             {
                 _goals.Add(ChecklistGoal.Create(details));
+            }
+            else if (type == "LevelGoal")
+            {
+                _goals.Add(LevelGoal.Create(details));
             }
         }
     }
