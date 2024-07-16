@@ -18,21 +18,23 @@ public class GoalManager
         _goals.Add(goal);
     }
 
-    public void RecordEvent(int goalIndex)
+    public void RecordEvent(int index)
     {
-        if (goalIndex < 0 || goalIndex >= _goals.Count)
+        if (index >= 0 && index < _goals.Count)
+        {
+            Goal goal = _goals[index];
+            goal.RecordEvent();
+
+            _score += goal.Points;
+
+            if (goal is ChecklistGoal checklistGoal && checklistGoal.IsComplete())
+            {
+                _score += checklistGoal.GetBonusPoints();
+            }
+        }
+        else
         {
             Console.WriteLine("Invalid goal index.");
-            return;
-        }
-
-        Goal goal = _goals[goalIndex];
-        goal.RecordEvent();
-        _score += goal.Points;
-
-        if (goal is ChecklistGoal checklistGoal && checklistGoal.IsComplete())
-        {
-            _score += checklistGoal.GetBonusPoints();
         }
     }
 
@@ -46,50 +48,46 @@ public class GoalManager
 
     public void Save(string filename)
     {
-        using (StreamWriter outputFile = new StreamWriter(filename))
+        using (StreamWriter writer = new StreamWriter(filename))
         {
-            outputFile.WriteLine(_score);
-            foreach (var goal in _goals)
+            writer.WriteLine(_score);
+            foreach (Goal goal in _goals)
             {
-                outputFile.WriteLine(goal.GetStringRepresentation());
+                writer.WriteLine(goal.GetType().Name);
+                writer.WriteLine(goal.GetStringRepresentation());
             }
         }
     }
 
     public void Load(string filename)
     {
-        if (!File.Exists(filename))
-        {
-            Console.WriteLine("File not found.");
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(filename);
-        _score = int.Parse(lines[0]);
-
         _goals.Clear();
+        _score = 0;
 
-        for (int i = 1; i < lines.Length; i++)
+        using (StreamReader reader = new StreamReader(filename))
         {
-            string[] parts = lines[i].Split(':');
-            string type = parts[0];
-            string details = parts[1];
+            _score = int.Parse(reader.ReadLine());
+            while (!reader.EndOfStream)
+            {
+                string type = reader.ReadLine();
+                string details = reader.ReadLine();
 
-            if (type == "SimpleGoal")
-            {
-                _goals.Add(SimpleGoal.Create(details));
-            }
-            else if (type == "EternalGoal")
-            {
-                _goals.Add(EternalGoal.Create(details));
-            }
-            else if (type == "ChecklistGoal")
-            {
-                _goals.Add(ChecklistGoal.Create(details));
-            }
-            else if (type == "LevelGoal")
-            {
-                _goals.Add(LevelGoal.Create(details));
+                if (type == "SimpleGoal")
+                {
+                    _goals.Add(SimpleGoal.Create(details));
+                }
+                else if (type == "EternalGoal")
+                {
+                    _goals.Add(EternalGoal.Create(details));
+                }
+                else if (type == "ChecklistGoal")
+                {
+                    _goals.Add(ChecklistGoal.Create(details));
+                }
+                else if (type == "LevelGoal")
+                {
+                    _goals.Add(LevelGoal.Create(details));
+                }
             }
         }
     }
